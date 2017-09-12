@@ -1,0 +1,15 @@
+{
+  "name": "netcfgdiff",
+  "version": "0.1.0",
+  "description": "Network configuration diff tool.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/mocha/bin/mocha -w"
+  },
+  "author": "Brian Crowell <brian@fluggo.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^3.5.3"
+  }
+}
