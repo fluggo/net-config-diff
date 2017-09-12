@@ -1,5 +1,7 @@
 'use config';
 
+const naturalSort = require('natural-sort')();
+
 // Removes trailing space, comments, carriage returns, and blank lines
 // Junk that won't help us in the diff
 function cleanScript(text) {
@@ -47,5 +49,71 @@ function structure(text) {
   return stack[0].children;
 }
 
+function markRecursive(obj, added) {
+  if(added) {
+    return {
+      text: obj.text,
+      children: obj.children && obj.children.map(c => markRecursive(c, true)),
+      added: true,
+    };
+  }
+  else {
+    return {
+      text: obj.text,
+      children: obj.children && obj.children.map(c => markRecursive(c, false)),
+      removed: true,
+    };
+  }
+}
+
+function sortedDiff(inputA, inputB) {
+  // Pick from each cart in sort order
+  const a = inputA.sort((a, b) => naturalSort(a.text, b.text));
+  const b = inputB.sort((a, b) => naturalSort(a.text, b.text));
+  const result = [];
+
+  let indexA = 0, indexB = 0;
+
+  while((indexA < a.length) && (indexB < b.length)) {
+    const comp = naturalSort(a[indexA].text, b[indexB].text);
+
+    if(comp === 0) {
+      // It's the same section, recurse
+      result.push({
+        text: a[indexA].text,
+        children: a[indexA].children && diffStructured(a[indexA].children, b[indexB].children)
+      });
+
+      indexA++;
+      indexB++;
+    }
+    else if(comp < 0) {
+      result.push(markRecursive(a[indexA], false));
+      indexA++;
+    }
+    else {
+      result.push(markRecursive(b[indexB], true));
+      indexB++;
+    }
+  }
+
+  // Push remaining items
+  result.push(...a.slice(indexA).map(a => markRecursive(a, false)), ...b.slice(indexB).map(b => markRecursive(b, true)));
+
+  return result;
+}
+
+// Performs a difference on the output of two structured texts (return value of structure)
+function diffStructured(a, b) {
+  return [].concat(
+    // Produce sorted diff of sections
+    sortedDiff(a.filter(line => line.children), b.filter(line => line.children)),
+
+    // Produce sorted diff of loose lines
+    sortedDiff(a.filter(line => !line.children), b.filter(line => !line.children))
+  );
+}
+
 module.exports.cleanScript = cleanScript;
 module.exports.structure = structure;
+module.exports.diffStructured = diffStructured;
