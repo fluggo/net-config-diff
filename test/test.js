@@ -100,7 +100,7 @@ describe('diffStructured', function() {
   const structure = require('../index.js').structure;
   const diffStructured = require('../index.js').diffStructured;
 
-  it('Produces a basic diff', function() {
+  it('produces a basic diff', function() {
     const TEXT_A = `interface Embedded-Service-Engine0/0
  no ip address
  shutdown
