@@ -39,7 +39,7 @@ archive
  write-memory
 `;
 
-    const RESULT_TEMP = structure(cleanScript(TEXT));
+    const RESULT_TEMP = structure(cleanScript(TEXT).split(/\n/g));
 
     // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
     const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
@@ -78,7 +78,7 @@ archive
 no ip bootp server
 `;
 
-    const RESULT_TEMP = structure(cleanScript(TEXT));
+    const RESULT_TEMP = structure(cleanScript(TEXT).split(/\n/g));
 
     // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
     const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
@@ -94,8 +94,8 @@ no ip bootp server
   });
 
   it('handles malformed input', function() {
-    expect(() => structure('  interface blah\nnerp')).to.throw("Malformed input");
-    expect(() => structure('interface blah\n  nerp')).to.throw("Malformed input");
+    expect(() => structure(['  interface blah', 'nerp'])).to.throw("Malformed input");
+    expect(() => structure(['interface blah', '  nerp'])).to.throw("Malformed input");
   });
 });
 
@@ -148,7 +148,7 @@ archive
  write-memory
 `;
 
-    const RESULT_TEMP = diffStructured(structure(cleanScript(TEXT_A)), structure(cleanScript(TEXT_B)));
+    const RESULT_TEMP = diffStructured(structure(cleanScript(TEXT_A).split(/\n/g)), structure(cleanScript(TEXT_B).split(/\n/g)));
 
     // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
     const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
@@ -244,7 +244,7 @@ interface GigabitEthernet0/0
 !
 `;
 
-    const RESULT_TEMP = diffStructured(structure(cleanScript(TEXT_A)), structure(cleanScript(TEXT_B)));
+    const RESULT_TEMP = diffStructured(structure(cleanScript(TEXT_A).split(/\n/g)), structure(cleanScript(TEXT_B).split(/\n/g)));
 
     // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
     const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));

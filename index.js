@@ -18,11 +18,11 @@ function cleanScript(value) {
 }
 
 // Converts a clean config (see cleanScript) into a structure based on indentation
-function structure(value) {
+function structure(lines) {
   const stack = [{ children: [] }];
   let currentLevel = stack[0], lastLine = null;
 
-  for(let rawLine of value.split(/\n/g)) {
+  for(let rawLine of lines) {
     const indent = rawLine.search(/[^ ]/);
 
     if(indent === -1)
