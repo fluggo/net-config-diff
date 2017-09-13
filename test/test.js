@@ -184,4 +184,42 @@ archive
       { value: 'no ip domain lookup' },
     ]);
   });
+
+  it('recognizes and matches single-keyed lines and sections', function() {
+    const LINES_A = [
+      { value: 'ip domain name fluggo.com', key: 'ip domain name ' },
+      { value: 'interface GigabitEthernet0', children: [
+        { value: 'description Floor 3 switch', key: 'description ' },
+      ] },
+    ];
+
+    const LINES_B = [
+      { value: 'ip domain name tango.com', key: 'ip domain name ' },
+      { value: 'interface GigabitEthernet0', children: [
+        { value: 'description Floor 4 switch', key: 'description ' },
+      ] },
+    ];
+
+    const RESULT_TEMP = diffStructured(LINES_A, LINES_B);
+
+    // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
+    const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
+
+    expect(RESULT).to.deep.equal([
+      { value: 'interface GigabitEthernet0', children: [
+        { value: [
+          { value: 'description Floor ' },
+          { value: '3', removed: true },
+          { value: '4', added: true },
+          { value: ' switch' },
+        ] },
+      ] },
+      { value: [
+        { value: 'ip domain name ' },
+        { value: 'fluggo', removed: true },
+        { value: 'tango', added: true },
+        { value: '.com' },
+      ] },
+    ]);
+  });
 });

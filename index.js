@@ -1,6 +1,7 @@
 'use config';
 
 const naturalSort = require('natural-sort')();
+const diff = require('diff');
 
 // Removes trailing space, comments, carriage returns, and blank lines
 // Junk that won't help us in the diff
@@ -66,21 +67,34 @@ function markRecursive(obj, added) {
   }
 }
 
+function compareLines(a, b) {
+  return naturalSort(a.key || a.value, b.key || b.value);
+}
+
+function cleanDiffObj(obj) {
+  // Remove the useless "count" property from JsDiff's output
+  delete obj.count;
+  return obj;
+}
+
 function sortedDiff(inputA, inputB) {
   // Pick from each cart in sort order
-  const a = inputA.sort((a, b) => naturalSort(a.value, b.value));
-  const b = inputB.sort((a, b) => naturalSort(a.value, b.value));
+  const a = inputA.sort(compareLines);
+  const b = inputB.sort(compareLines);
   const result = [];
 
   let indexA = 0, indexB = 0;
 
   while((indexA < a.length) && (indexB < b.length)) {
-    const comp = naturalSort(a[indexA].value, b[indexB].value);
+    const comp = compareLines(a[indexA], b[indexB]);
 
     if(comp === 0) {
-      // It's the same section, recurse
+      // It's the same section/line; but if the values are different, perform a diff
+      const value = (a[indexA].value === b[indexB].value) ? a[indexA].value : diff.diffWords(a[indexA].value, b[indexB].value).map(cleanDiffObj);
+
+      // Recurse
       result.push({
-        value: a[indexA].value,
+        value: value,
         children: a[indexA].children && diffStructured(a[indexA].children, b[indexB].children)
       });
 
