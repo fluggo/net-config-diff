@@ -92,6 +92,11 @@ no ip bootp server
       { value: 'no ip bootp server' },
     ]);
   });
+
+  it('handles malformed input', function() {
+    expect(() => structure('  interface blah\nnerp')).to.throw("Malformed input");
+    expect(() => structure('interface blah\n  nerp')).to.throw("Malformed input");
+  });
 });
 
 

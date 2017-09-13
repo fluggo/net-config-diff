@@ -18,7 +18,6 @@ function cleanScript(value) {
 }
 
 // Converts a clean config (see cleanScript) into a structure based on indentation
-// This does expect a well-behaved text, non-well-behaved will crash it
 function structure(value) {
   const stack = [{ children: [] }];
   let currentLevel = stack[0], lastLine = null;
@@ -31,7 +30,10 @@ function structure(value) {
 
     const line = { value: rawLine.substr(indent), children: undefined };
 
-    while(indent > stack.length - 1) {
+    if(indent > stack.length - 1) {
+      if(indent !== stack.length)
+        throw new Error('Malformed input');
+
       // Last line was a header, move it up
       stack.push(currentLevel);
       currentLevel = lastLine;
