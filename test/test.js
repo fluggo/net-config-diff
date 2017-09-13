@@ -217,14 +217,14 @@ archive
           { value: '3', removed: true },
           { value: '4', added: true },
           { value: ' switch' },
-        ] },
+        ], key: 'description ' },
       ] },
       { value: [
         { value: 'ip domain name ' },
         { value: 'fluggo', removed: true },
         { value: 'tango', added: true },
         { value: '.com' },
-      ] },
+      ], key: 'ip domain name ' },
     ]);
   });
 
@@ -257,6 +257,44 @@ interface GigabitEthernet0/0
           { value: 'no ip address', removed: true },
           { value: 'speed auto', removed: true },
         ] },
+    ]);
+  });
+
+  it('preserves "extra" property in single-keyed lines and sections', function() {
+    const LINES_A = [
+      { value: 'ip domain name fluggo.com', key: 'ip domain name ', extra: 'extra1' },
+      { value: 'interface GigabitEthernet0', extra: 'extra2', children: [
+        { value: 'description Floor 3 switch', key: 'description ', extra: 'extra3' },
+      ] },
+    ];
+
+    const LINES_B = [
+      { value: 'ip domain name tango.com', key: 'ip domain name ', extra: 'extra1' },
+      { value: 'interface GigabitEthernet0', extra: 'extra2', children: [
+        { value: 'description Floor 4 switch', key: 'description ', extra: 'extra3' },
+      ] },
+    ];
+
+    const RESULT_TEMP = diffStructured(LINES_A, LINES_B);
+
+    // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
+    const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
+
+    expect(RESULT).to.deep.equal([
+      { value: 'interface GigabitEthernet0', extra: 'extra2', children: [
+        { value: [
+          { value: 'description Floor ' },
+          { value: '3', removed: true },
+          { value: '4', added: true },
+          { value: ' switch' },
+        ], key: 'description ', extra: 'extra3' },
+      ] },
+      { value: [
+        { value: 'ip domain name ' },
+        { value: 'fluggo', removed: true },
+        { value: 'tango', added: true },
+        { value: '.com' },
+      ], key: 'ip domain name ', extra: 'extra1' },
     ]);
   });
 
@@ -316,4 +354,35 @@ access-list 13 deny any log`;
     ]);
   });
 
+  it('preserves "extra" property in multi-statement sections', function() {
+    function prepareLine(line) {
+      return {
+        value: line,
+        key: line.match(/^access-list \d+ /)[0],
+        ordered: true,
+        extra: 'extraprop',
+      };
+    }
+
+    function prepare(text) {
+      return cleanScript(text).split(/\n/g).map(prepareLine);
+    }
+
+    const TEXT_A = `access-list 12 remark SSH
+access-list 12 permit 10.12.66.132`;
+
+    const TEXT_B = `access-list 12 remark SSH
+access-list 12 permit 10.12.66.133`;
+
+    const RESULT_TEMP = diffStructured(prepare(TEXT_A), prepare(TEXT_B));
+
+    // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
+    const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
+
+    expect(RESULT).to.deep.equal([
+{ key: 'access-list 12 ', ordered: true, value: 'access-list 12 remark SSH', extra: 'extraprop' },
+{ key: 'access-list 12 ', ordered: true, value: 'access-list 12 permit 10.12.66.132', removed: true, extra: 'extraprop' },
+{ key: 'access-list 12 ', ordered: true, value: 'access-list 12 permit 10.12.66.133', added: true, extra: 'extraprop' },
+    ]);
+  });
 });

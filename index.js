@@ -58,6 +58,8 @@ function markRecursive(obj, added) {
       value: obj.value,
       children: obj.children && obj.children.map(c => markRecursive(c, true)),
       added: true,
+      key: obj.key,
+      extra: obj.extra,
     };
   }
   else {
@@ -65,6 +67,8 @@ function markRecursive(obj, added) {
       value: obj.value,
       children: obj.children && obj.children.map(c => markRecursive(c, false)),
       removed: true,
+      key: obj.key,
+      extra: obj.extra,
     };
   }
 }
@@ -98,7 +102,9 @@ function diffStructured(inputA, inputB) {
       // Recurse
       result.push({
         value: value,
-        children: (a[indexA].children || b[indexB].children) && diffStructured(a[indexA].children || [], b[indexB].children || [])
+        children: (a[indexA].children || b[indexB].children) && diffStructured(a[indexA].children || [], b[indexB].children || []),
+        key: a[indexA].key,
+        extra: a[indexA].extra,
       });
 
       indexA++;
@@ -124,14 +130,15 @@ function diffStructured(inputA, inputB) {
   const orderedKeys = new Set([...orderedInputA.map(l => l.key), ...orderedInputB.map(l => l.key)]);
 
   for(let key of orderedKeys) {
+    const sectionA = orderedInputA.filter(line => line.key === key);
+    const sectionB = orderedInputB.filter(line => line.key === key);
+
     result.push(
       // Destructure arrays ([[2, 3], [1]] -> [2, 3, 1])
       ...[].concat(
         // Run a regular JsDiff
         ...diff.diffArrays(
-          // Arrays of raw strings
-          orderedInputA.filter(line => line.key === key).map(line => line.value),
-          orderedInputB.filter(line => line.key === key).map(line => line.value)
+          sectionA.map(line => line.value), sectionB.map(line => line.value)
         )
         // Rebuild it into arrays of individual lines (restore the context from the original)
         .map(item => item.value.map(value => {
@@ -141,6 +148,7 @@ function diffStructured(inputA, inputB) {
             ordered: true,
             added: item.added,
             removed: item.removed,
+            extra: (sectionA[0] || sectionB[0]).extra,
           };
         }))
       )
