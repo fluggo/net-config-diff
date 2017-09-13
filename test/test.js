@@ -222,4 +222,36 @@ archive
       ] },
     ]);
   });
+
+  it('handles mismatched sections/lines', function() {
+    const TEXT_A = `
+!
+interface GigabitEthernet0/0
+ description Floor 3 switch
+ no ip address
+ duplex auto
+ speed auto
+`;
+
+    const TEXT_B = `
+!
+interface GigabitEthernet0/0
+!
+`;
+
+    const RESULT_TEMP = diffStructured(structure(cleanScript(TEXT_A)), structure(cleanScript(TEXT_B)));
+
+    // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
+    const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
+
+    expect(RESULT).to.deep.equal([
+      { value: 'interface GigabitEthernet0/0',
+        children: [
+          { value: 'description Floor 3 switch', removed: true },
+          { value: 'duplex auto', removed: true },
+          { value: 'no ip address', removed: true },
+          { value: 'speed auto', removed: true },
+        ] },
+    ]);
+  });
 });

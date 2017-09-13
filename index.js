@@ -77,7 +77,8 @@ function cleanDiffObj(obj) {
   return obj;
 }
 
-function sortedDiff(inputA, inputB) {
+// Performs a difference on the output of two structured texts (return value of structure)
+function diffStructured(inputA, inputB) {
   // Pick from each cart in sort order
   const a = inputA.sort(compareLines);
   const b = inputB.sort(compareLines);
@@ -95,7 +96,7 @@ function sortedDiff(inputA, inputB) {
       // Recurse
       result.push({
         value: value,
-        children: a[indexA].children && diffStructured(a[indexA].children, b[indexB].children)
+        children: (a[indexA].children || b[indexB].children) && diffStructured(a[indexA].children || [], b[indexB].children || [])
       });
 
       indexA++;
@@ -115,17 +116,6 @@ function sortedDiff(inputA, inputB) {
   result.push(...a.slice(indexA).map(a => markRecursive(a, false)), ...b.slice(indexB).map(b => markRecursive(b, true)));
 
   return result;
-}
-
-// Performs a difference on the output of two structured texts (return value of structure)
-function diffStructured(a, b) {
-  return [].concat(
-    // Produce sorted diff of sections
-    sortedDiff(a.filter(line => line.children), b.filter(line => line.children)),
-
-    // Produce sorted diff of loose lines
-    sortedDiff(a.filter(line => !line.children), b.filter(line => !line.children))
-  );
 }
 
 module.exports.cleanScript = cleanScript;
