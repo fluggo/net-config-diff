@@ -4,8 +4,8 @@ const naturalSort = require('natural-sort')();
 
 // Removes trailing space, comments, carriage returns, and blank lines
 // Junk that won't help us in the diff
-function cleanScript(text) {
-  return text
+function cleanScript(value) {
+  return value
     // Remove carriage returns, comments, trailing whitespace
     .replace(/\r|\s*!.*$|[ \t]+$/gm, '')
 
@@ -18,17 +18,17 @@ function cleanScript(text) {
 
 // Converts a clean config (see cleanScript) into a structure based on indentation
 // This does expect a well-behaved text, non-well-behaved will crash it
-function structure(text) {
+function structure(value) {
   const stack = [{ children: [] }];
   let currentLevel = stack[0], lastLine = null;
 
-  for(let rawLine of text.split(/\n/g)) {
+  for(let rawLine of value.split(/\n/g)) {
     const indent = rawLine.search(/[^ ]/);
 
     if(indent === -1)
       continue;
 
-    const line = { text: rawLine.substr(indent), children: undefined };
+    const line = { value: rawLine.substr(indent), children: undefined };
 
     while(indent > stack.length - 1) {
       // Last line was a header, move it up
@@ -52,14 +52,14 @@ function structure(text) {
 function markRecursive(obj, added) {
   if(added) {
     return {
-      text: obj.text,
+      value: obj.value,
       children: obj.children && obj.children.map(c => markRecursive(c, true)),
       added: true,
     };
   }
   else {
     return {
-      text: obj.text,
+      value: obj.value,
       children: obj.children && obj.children.map(c => markRecursive(c, false)),
       removed: true,
     };
@@ -68,19 +68,19 @@ function markRecursive(obj, added) {
 
 function sortedDiff(inputA, inputB) {
   // Pick from each cart in sort order
-  const a = inputA.sort((a, b) => naturalSort(a.text, b.text));
-  const b = inputB.sort((a, b) => naturalSort(a.text, b.text));
+  const a = inputA.sort((a, b) => naturalSort(a.value, b.value));
+  const b = inputB.sort((a, b) => naturalSort(a.value, b.value));
   const result = [];
 
   let indexA = 0, indexB = 0;
 
   while((indexA < a.length) && (indexB < b.length)) {
-    const comp = naturalSort(a[indexA].text, b[indexB].text);
+    const comp = naturalSort(a[indexA].value, b[indexB].value);
 
     if(comp === 0) {
       // It's the same section, recurse
       result.push({
-        text: a[indexA].text,
+        value: a[indexA].value,
         children: a[indexA].children && diffStructured(a[indexA].children, b[indexB].children)
       });
 

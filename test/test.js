@@ -45,28 +45,28 @@ archive
     const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
 
     expect(RESULT).to.deep.equal([
-      { text: 'interface Embedded-Service-Engine0/0',
+      { value: 'interface Embedded-Service-Engine0/0',
         children: [
-          { text: 'no ip address' },
-          { text: 'shutdown' },
+          { value: 'no ip address' },
+          { value: 'shutdown' },
         ] },
-      { text: 'interface GigabitEthernet0/0',
+      { value: 'interface GigabitEthernet0/0',
         children: [
-          { text: 'description Floor 3 switch' },
-          { text: 'no ip address' },
-          { text: 'duplex auto' },
-          { text: 'speed auto' },
+          { value: 'description Floor 3 switch' },
+          { value: 'no ip address' },
+          { value: 'duplex auto' },
+          { value: 'speed auto' },
         ] },
-      { text: 'no ip bootp server' },
-      { text: 'no ip domain lookup' },
-      { text: 'archive',
+      { value: 'no ip bootp server' },
+      { value: 'no ip domain lookup' },
+      { value: 'archive',
         children: [
-          { text: 'log config',
+          { value: 'log config',
             children: [
-              { text: 'logging enable' },
-              { text: 'logging size 200' },
+              { value: 'logging enable' },
+              { value: 'logging size 200' },
             ] },
-          { text: 'write-memory' },
+          { value: 'write-memory' },
         ] },
     ]);
   });
@@ -84,12 +84,12 @@ no ip bootp server
     const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
 
     expect(RESULT).to.deep.equal([
-      { text: 'interface Embedded-Service-Engine0/0', children: [
-        { text: 'no ip address', children: [
-          { text: 'shutdown' },
+      { value: 'interface Embedded-Service-Engine0/0', children: [
+        { value: 'no ip address', children: [
+          { value: 'shutdown' },
         ] },
       ] },
-      { text: 'no ip bootp server' },
+      { value: 'no ip bootp server' },
     ]);
   });
 });
@@ -149,39 +149,39 @@ archive
     const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
 
     expect(RESULT).to.deep.equal([
-      { text: 'archive',
+      { value: 'archive',
         children: [
-          { text: 'log config',
+          { value: 'log config',
             children: [
-              { text: 'logging enable' },
-              { text: 'logging size 200' },
-              { text: 'record rc', removed: true },
+              { value: 'logging enable' },
+              { value: 'logging size 200' },
+              { value: 'record rc', removed: true },
             ] },
-          { text: 'write-memory' },
+          { value: 'write-memory' },
         ] },
-      { text: 'interface Embedded-Service-Engine0/0',
+      { value: 'interface Embedded-Service-Engine0/0',
         children: [
-          { text: 'ip address 10.11.0.165 255.255.255.255', added: true },
-          { text: 'no ip address', removed: true },
-          { text: 'shutdown' },
+          { value: 'ip address 10.11.0.165 255.255.255.255', added: true },
+          { value: 'no ip address', removed: true },
+          { value: 'shutdown' },
         ] },
-      { text: 'interface GigabitEthernet0/0', removed: true,
+      { value: 'interface GigabitEthernet0/0', removed: true,
         children: [
-          { text: 'description Floor 3 switch', removed: true },
-          { text: 'no ip address', removed: true },
-          { text: 'duplex auto', removed: true },
-          { text: 'speed auto', removed: true },
+          { value: 'description Floor 3 switch', removed: true },
+          { value: 'no ip address', removed: true },
+          { value: 'duplex auto', removed: true },
+          { value: 'speed auto', removed: true },
         ] },
-      { text: 'interface GigabitEthernet0/1', added: true,
+      { value: 'interface GigabitEthernet0/1', added: true,
         children: [
-          { text: 'description Floor 3 switch', added: true },
-          { text: 'no ip address', added: true },
-          { text: 'duplex auto', added: true },
-          { text: 'speed auto', added: true },
+          { value: 'description Floor 3 switch', added: true },
+          { value: 'no ip address', added: true },
+          { value: 'duplex auto', added: true },
+          { value: 'speed auto', added: true },
         ] },
-      { text: 'ip domain name fluggo.com', added: true },
-      { text: 'no ip bootp server' },
-      { text: 'no ip domain lookup' },
+      { value: 'ip domain name fluggo.com', added: true },
+      { value: 'no ip bootp server' },
+      { value: 'no ip domain lookup' },
     ]);
   });
 });
