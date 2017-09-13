@@ -259,4 +259,61 @@ interface GigabitEthernet0/0
         ] },
     ]);
   });
+
+  it('handles multi-statement sections', function() {
+    function prepareLine(line) {
+      return {
+        value: line,
+        key: line.match(/^access-list \d+ /)[0],
+        ordered: true,
+      };
+    }
+
+    function prepare(text) {
+      return cleanScript(text).split(/\n/g).map(prepareLine);
+    }
+
+    const TEXT_A = `access-list 12 remark SSH
+access-list 12 permit 10.12.66.132
+access-list 12 permit 10.12.66.119
+access-list 12 permit 10.12.67.215
+access-list 13 permit 12.15.9.45
+access-list 13 remark Bork
+access-list 13 permit 10.1.1.15
+access-list 13 deny 2.9.6.3
+access-list 13 permit 45.45.45.45
+access-list 13 permit 1.1.1.1
+access-list 13 deny any log`;
+
+    const TEXT_B = `access-list 12 remark SSH
+access-list 12 permit 10.12.66.132
+access-list 13 remark Bork
+access-list 13 permit 12.15.9.45
+access-list 13 permit 10.1.1.15
+access-list 12 permit 10.12.67.215
+access-list 13 permit 45.45.45.45
+access-list 13 permit 1.1.1.1
+access-list 13 deny any log`;
+
+    const RESULT_TEMP = diffStructured(prepare(TEXT_A), prepare(TEXT_B));
+
+    // Run the result through JSON to eliminate the undefined properties, which are there for perfomance reasons
+    const RESULT = JSON.parse(JSON.stringify(RESULT_TEMP));
+
+    expect(RESULT).to.deep.equal([
+{ key: 'access-list 12 ', ordered: true, value: 'access-list 12 remark SSH', },
+{ key: 'access-list 12 ', ordered: true, value: 'access-list 12 permit 10.12.66.132', },
+{ key: 'access-list 12 ', ordered: true, value: 'access-list 12 permit 10.12.66.119', removed: true, },
+{ key: 'access-list 12 ', ordered: true, value: 'access-list 12 permit 10.12.67.215', },
+{ key: 'access-list 13 ', ordered: true, value: 'access-list 13 remark Bork', added: true, },
+{ key: 'access-list 13 ', ordered: true, value: 'access-list 13 permit 12.15.9.45', },
+{ key: 'access-list 13 ', ordered: true, value: 'access-list 13 remark Bork', removed: true, },
+{ key: 'access-list 13 ', ordered: true, value: 'access-list 13 permit 10.1.1.15', },
+{ key: 'access-list 13 ', ordered: true, value: 'access-list 13 deny 2.9.6.3', removed: true, },
+{ key: 'access-list 13 ', ordered: true, value: 'access-list 13 permit 45.45.45.45', },
+{ key: 'access-list 13 ', ordered: true, value: 'access-list 13 permit 1.1.1.1', },
+{ key: 'access-list 13 ', ordered: true, value: 'access-list 13 deny any log', },
+    ]);
+  });
+
 });

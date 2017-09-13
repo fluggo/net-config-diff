@@ -82,8 +82,8 @@ function cleanDiffObj(obj) {
 // Performs a difference on the output of two structured texts (return value of structure)
 function diffStructured(inputA, inputB) {
   // Pick from each cart in sort order
-  const a = inputA.sort(compareLines);
-  const b = inputB.sort(compareLines);
+  const a = inputA.filter(line => !line.ordered).sort(compareLines);
+  const b = inputB.filter(line => !line.ordered).sort(compareLines);
   const result = [];
 
   let indexA = 0, indexB = 0;
@@ -116,6 +116,36 @@ function diffStructured(inputA, inputB) {
 
   // Push remaining items
   result.push(...a.slice(indexA).map(a => markRecursive(a, false)), ...b.slice(indexB).map(b => markRecursive(b, true)));
+
+  // Now process the ordered part of the input
+  const orderedInputA = inputA.filter(line => line.ordered);
+  const orderedInputB = inputB.filter(line => line.ordered);
+
+  const orderedKeys = new Set([...orderedInputA.map(l => l.key), ...orderedInputB.map(l => l.key)]);
+
+  for(let key of orderedKeys) {
+    result.push(
+      // Destructure arrays ([[2, 3], [1]] -> [2, 3, 1])
+      ...[].concat(
+        // Run a regular JsDiff
+        ...diff.diffArrays(
+          // Arrays of raw strings
+          orderedInputA.filter(line => line.key === key).map(line => line.value),
+          orderedInputB.filter(line => line.key === key).map(line => line.value)
+        )
+        // Rebuild it into arrays of individual lines (restore the context from the original)
+        .map(item => item.value.map(value => {
+          return {
+            value: value,
+            key: key,
+            ordered: true,
+            added: item.added,
+            removed: item.removed,
+          };
+        }))
+      )
+    );
+  }
 
   return result;
 }
