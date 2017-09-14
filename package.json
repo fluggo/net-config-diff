@@ -6,6 +6,9 @@
   "scripts": {
     "test": "node_modules/mocha/bin/mocha -w"
   },
+  "bin": {
+    "net-config-diff": "./net-config-diff.js"
+  },
   "author": "Brian Crowell <brian@fluggo.com>",
   "license": "ISC",
   "repository": "fluggo/net-config-diff",
@@ -14,6 +17,8 @@
     "mocha": "^3.5.3"
   },
   "dependencies": {
+    "colors": "^1.1.2",
+    "commander": "^2.11.0",
     "diff": "^3.3.1",
     "natural-sort": "^1.0.0"
   }

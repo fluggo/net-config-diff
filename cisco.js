@@ -90,4 +90,33 @@ function linesplit(text) {
   return result;
 }
 
+function markVlanLine(line) {
+  if(line.value.startsWith('name ')) {
+    console.error('in name');
+    line.key = 'name ';
+  }
+}
+
+function markInterfaceLine(line) {
+  if(line.value.startsWith('description ')) {
+    line.key = 'description ';
+  }
+  else if(line.value.startsWith('ip address ')) {
+    line.key = 'ip address ';
+  }
+}
+
+function mark(structuredText) {
+  // Top-level marking of statements
+  for(let line of structuredText) {
+    if(line.value.startsWith('vlan ')) {
+      line.children.forEach(markVlanLine);
+    }
+    else if(line.value.startsWith('interface ')) {
+      line.children.forEach(markInterfaceLine);
+    }
+  }
+}
+
 module.exports.linesplit = linesplit;
+module.exports.mark = mark;
