@@ -1,5 +1,5 @@
 {
-  "name": "netcfgdiff",
+  "name": "net-config-diff",
   "version": "0.1.0",
   "description": "Network configuration diff tool.",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "author": "Brian Crowell <brian@fluggo.com>",
   "license": "ISC",
-  "repository": "fluggo/netcfgdiff",
+  "repository": "fluggo/net-config-diff",
   "devDependencies": {
     "chai": "^4.1.2",
     "mocha": "^3.5.3"
